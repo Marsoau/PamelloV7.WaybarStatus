@@ -37,6 +37,11 @@ public class Program
             Console.WriteLine("Token not found in config file");
             return;
         }
+
+        var songs = await Client.PEQL.GetAsync<RemoteSong>("favorite");
+        foreach (var song in songs) {
+            Console.WriteLine(song);
+        }
         
         Url = parts[0];
         Token = Guid.Parse(parts[1]);
@@ -44,17 +49,13 @@ public class Program
         Console.WriteLine($"{Url} : {Token}");
         
         await Update();
-        await Start();
+        Start();
         
         await Task.Delay(-1);
     }
 
-    public static async Task Start() {
+    public static void Start() {
         _ = Client.StartConnectionAttemptsAsync(Url);
-
-        Client.OnFailedAttempt += (x, attempt) => {
-            //Console.WriteLine($"Failed attempt {attempt}: {x}");
-        };
         
         Client.OnConnected += () => {
             _ = Update();
@@ -89,7 +90,11 @@ public class Program
         var sb = new StringBuilder();
 
         if (Song is not null) {
-            sb.Append(Song);
+            var songString = Song.ToString();
+            
+            sb.Append(songString.Substring(0, songString.Length < 40 ? songString.Length : 40));
+            if (songString.Length > 40) sb.Append("...");
+            
             if (Player is not null) {
                 sb.Insert(0, $"[{Player.Queue.Position + 1}/{Player.Queue.Entries.Count()}] | ");
                 sb.Append(" | ").Append(new AudioTime(Player.Queue.CurrentSongTimePassed).ToShortString());
