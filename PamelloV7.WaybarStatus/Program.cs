@@ -57,17 +57,17 @@ public class Program
     public static void Start() {
         _ = Client.StartConnectionAttemptsAsync(Url);
         
-        Client.OnConnected += () => {
+        Client.OnConnected += (isAutomatic) => {
             _ = Update();
             _ = Client.AuthorizeAsync(Token);
         };
-        Client.OnDisconnected += () => {
+        Client.OnDisconnected += (isAutomatic) => {
             _ = Update();
             _ = Client.StartConnectionAttemptsAsync(Url);
         };
         
-        Client.OnAuthorized += () => _ = Update();
-        Client.OnUnauthorized += () => _ = Update();
+        Client.OnAuthorized += (isAutomatic) => _ = Update();
+        Client.OnUnauthorized += (isAutomatic) => _ = Update();
 
         Client.Events.Watch(Update, () => [
             Client.User, Player, Song
