@@ -2,6 +2,7 @@
 using PamelloV7.Core.Audio;
 using PamelloV7.Wrapper;
 using PamelloV7.Wrapper.Entities;
+using PamelloV7.Wrapper.Extensions;
 
 namespace PamelloV7.WaybarStatus;
 
@@ -12,7 +13,7 @@ public class Program
     public static RemotePlayer? Player;
     public static RemoteSong? Song;
     
-    public static string Url;
+    public static string Url = null!;
     public static Guid Token;
     
     static Program() {
@@ -36,11 +37,6 @@ public class Program
         if (parts.Length == 1 || string.IsNullOrWhiteSpace(parts[1])) {
             Console.WriteLine("Token not found in config file");
             return;
-        }
-
-        var songs = await Client.PEQL.GetAsync<RemoteSong>("favorite");
-        foreach (var song in songs) {
-            Console.WriteLine(song);
         }
         
         Url = parts[0];
@@ -84,8 +80,8 @@ public class Program
             return;
         }
         
-        Player = await Client.PEQL.GetSingleAsync<RemotePlayer>(Client.RequiredUser.SelectedPlayerId ?? 0);
-        Song = await Client.PEQL.GetSingleAsync<RemoteSong>(Player?.Queue.CurrentSongId ?? 0);
+        Player = await Client.RequiredUser.SelectedPlayer.LoadAsync();
+        Song = Player is null ? null : await Player.Queue.CurrentSong.LoadAsync();
         
         var sb = new StringBuilder();
 
