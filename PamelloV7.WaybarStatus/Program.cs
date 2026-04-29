@@ -86,16 +86,21 @@ public class Program
         var sb = new StringBuilder();
 
         if (Song is not null) {
-            var songString = Song.ToString();
+            var songName = Song.Name;
+            const int maxLength = 48;
             
-            sb.Append(songString.Substring(0, songString.Length < 40 ? songString.Length : 40));
-            if (songString.Length > 40) sb.Append("...");
+            songName = songName[..(songName.Length < maxLength ? songName.Length : maxLength)];
+            if (Song.Name.Length > maxLength) songName = $"{songName[..(maxLength - 3)]}...";
+            
+            sb.Append($"[{Song.Id}] {InWhite(songName)}");
+            
+            if (songName.Length > maxLength) sb.Append("...");
             
             if (Player is not null) {
-                sb.Insert(0, $"[{Player.Queue.Position + 1}/{Player.Queue.Entries.Count()}] | ");
-                sb.Append(" | ").Append(new AudioTime(Player.Queue.CurrentSongTimePassed).ToShortString());
+                sb.Insert(0, $"[{InWhite(Player.Queue.Position + 1)}/{Player.Queue.Entries.Count()}] | ");
+                sb.Append(" | ").Append(InWhite(new AudioTime(Player.Queue.CurrentSongTimePassed).ToShortString()));
                 sb.Append(" / ").Append(new AudioTime(Player.Queue.CurrentSongTimeTotal).ToShortString());
-                if (Player.IsPaused) sb.Append(" (Paused)");
+                if (Player.IsPaused) sb.Append(InWhite(" (Paused)"));
             }
         }
         else {
@@ -104,4 +109,6 @@ public class Program
 
         Console.WriteLine(sb.ToString());
     }
+
+    public static string InWhite(object? obj) => obj is null ? "null" : $@"<span color=""#FFFFFFCC"">{obj}</span>";
 }
