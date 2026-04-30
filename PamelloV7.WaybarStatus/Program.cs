@@ -66,7 +66,7 @@ public class Program
         Client.OnUnauthorized += (isAutomatic) => _ = Update();
 
         Client.Events.Watch(Update, () => [
-            Client.User, Player, Song
+            Client.User, Player, Song, ..Song?.Episodes ?? []
         ]);
     }
 
@@ -82,19 +82,33 @@ public class Program
         
         Player = await Client.RequiredUser.SelectedPlayer.LoadAsync();
         Song = Player is null ? null : await Player.Queue.CurrentSong.LoadAsync();
+
+        var episodeLoading = Song?.Episodes.LoadAsync();
+
+        var episodes = episodeLoading is not null
+            ? (await episodeLoading).ToList()
+            : [];
+
+        var currentEpisodePosition = Player?.Queue.CurrentEpisodePosition ?? -1;
+        var currentEpisode = episodes.Count > 0
+            ? episodes.ElementAtOrDefault(currentEpisodePosition)
+            : null;
         
         var sb = new StringBuilder();
 
         if (Song is not null) {
-            var songName = Song.Name;
+            var originalName = currentEpisode is not null ? currentEpisode.Name : Song.Name;
+            var currentName = originalName;
             const int maxLength = 48;
             
-            songName = songName[..(songName.Length < maxLength ? songName.Length : maxLength)];
-            if (Song.Name.Length > maxLength) songName = $"{songName[..(maxLength - 3)]}...";
+            currentName = currentName[..(currentName.Length < maxLength ? currentName.Length : maxLength)];
+            if (originalName.Length > maxLength) currentName = $"{currentName[..(maxLength - 3)]}...";
             
-            sb.Append($"[{Song.Id}] {InWhite(songName)}");
+            sb.Append($"[{Song.Id}]{(currentEpisode is not null
+                ? $" &lt;{InWhite(currentEpisodePosition + 1)}/{episodes.Count}&gt;" : ""
+            )} {InWhite(currentName)}");
             
-            if (songName.Length > maxLength) sb.Append("...");
+            if (currentName.Length > maxLength) sb.Append("...");
             
             if (Player is not null) {
                 sb.Insert(0, $"[{InWhite(Player.Queue.Position + 1)}/{Player.Queue.Entries.Count()}] | ");
