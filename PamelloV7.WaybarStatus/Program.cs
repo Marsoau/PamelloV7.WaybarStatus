@@ -93,6 +93,11 @@ public class Program
         var currentEpisode = episodes.Count > 0
             ? episodes.ElementAtOrDefault(currentEpisodePosition)
             : null;
+        var nextEpisode = episodes.Count > 0
+            ? episodes.ElementAtOrDefault(currentEpisodePosition + 1)
+            : null;
+
+        var currentEpisodeEndTime = nextEpisode?.Start ?? Player?.Queue.CurrentSongTimeTotal ?? -1;
         
         var sb = new StringBuilder();
 
@@ -113,7 +118,16 @@ public class Program
             if (Player is not null) {
                 sb.Insert(0, $"[{InWhite(Player.Queue.Position + 1)}/{Player.Queue.Entries.Count()}] | ");
                 sb.Append(" | ").Append(InWhite(new AudioTime(Player.Queue.CurrentSongTimePassed).ToShortString()));
-                sb.Append(" / ").Append(new AudioTime(Player.Queue.CurrentSongTimeTotal).ToShortString());
+                sb.Append(" / ");
+                
+                if (currentEpisode is not null && currentEpisodeEndTime != -1) {
+                    sb.Append(new AudioTime(currentEpisodeEndTime).ToShortString());
+                    sb.Append($" ({new AudioTime(Player.Queue.CurrentSongTimeTotal).ToShortString()})");
+                }
+                else {
+                    sb.Append(new AudioTime(Player.Queue.CurrentSongTimeTotal).ToShortString());
+                }
+                
                 if (Player.IsPaused) sb.Append(InWhite(" (Paused)"));
             }
         }
