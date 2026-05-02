@@ -111,9 +111,9 @@ public class Program
             currentName = currentName[..(currentName.Length < maxLength ? currentName.Length : maxLength)];
             if (originalName.Length > maxLength) currentName = $"{currentName[..(maxLength - 3)]}...";
             
-            sb.Append($"[{Song.Id}{(
-                Client.RequiredUser.FavoriteSongs.Contains(Song) ? "" /* InWhite('F') */ : ""
-            )}]{(currentEpisode is not null
+            sb.Append($"[{(
+                Client.RequiredUser.FavoriteSongs.Contains(Song) ? InWhite('F') : ""
+            )}{Song.Id}]{(currentEpisode is not null
                 ? $" &lt;{InWhite(currentEpisodePosition + 1)}/{episodes.Count}&gt;" : ""
             )} {InWhite(SecurityElement.Escape(currentName))}");
             
