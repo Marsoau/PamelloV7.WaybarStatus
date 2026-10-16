@@ -22,7 +22,7 @@ public class Program
     }
     
     public static async Task Main(string[] args) {
-        var configPath = args.Length > 0 ? args[0] : "pamellostatus.config";
+        var configPath = args.Length > 0 ? args[0] : Path.Combine(AppContext.BaseDirectory, "pamellostatus.config");
         
         if (!File.Exists(configPath)) {
             Console.WriteLine("No config file found");

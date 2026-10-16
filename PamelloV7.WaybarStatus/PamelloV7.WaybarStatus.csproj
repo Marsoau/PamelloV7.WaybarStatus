@@ -8,7 +8,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="PamelloV7.Wrapper" Version="2026.430.1-dev" />
+      <PackageReference Include="PamelloV7.Wrapper" Version="2.1.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="pamellostatus.config">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>
